@@ -56,3 +56,16 @@ async def sign_up(user: User, response: Response):
     user.password = hashed_password
     db.users.insert_one(user.dict(by_alias=True))
     return {'user': user}
+
+
+def create_access_token(data: dict):
+    """
+    function that get a user's username and make a token 
+    with 15 minutes expire date
+    """
+
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, 'My_secret_key')
+    return encoded_jwt
