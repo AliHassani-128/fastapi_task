@@ -36,3 +36,23 @@ def login(username, password):
             status_code=400, detail="Incorrect username or password")
 
     return user
+
+
+@app.post('/api/auth/register/')
+async def sign_up(user: User, response: Response):
+    """
+    async function for register new user with unique username and password
+
+    """
+
+    if db.users.find_one({'username': user.username}):
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {'error': 'user with this username already exists!'}
+
+    check_username(user.username)
+    check_password(user.password)
+
+    hashed_password = hashlib.sha256(user.password.encode('utf-8')).hexdigest()
+    user.password = hashed_password
+    db.users.insert_one(user.dict(by_alias=True))
+    return {'user': user}
