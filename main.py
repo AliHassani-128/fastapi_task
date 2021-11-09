@@ -101,3 +101,24 @@ async def current_users():
 
     users = [User(**user) for user in db.users.find()]
     return {'users': users}
+
+
+@app.put('/api/users/reset_password/')
+async def reset_password(user: User, response: Response):
+    """
+    an async api for change an user old password to new password
+
+    """
+
+    find_user = db.users.find_one({'username': user.username})
+    if not find_user:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {'error': 'User with this username does not exists!'}
+
+    check_password(user.password)
+
+    hashed_password = hashlib.sha256(user.password.encode('utf-8')).hexdigest()
+    db.users.update({'username': user.username}, {
+                    '$set': {'password': hashed_password}})
+
+    return {'success': 'password has changed successfully'}
