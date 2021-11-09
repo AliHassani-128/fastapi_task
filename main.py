@@ -69,3 +69,23 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, 'My_secret_key')
     return encoded_jwt
+
+
+@app.post('/api/auth/api_key/')
+async def api_key(form_data: OAuth2PasswordRequestForm = Depends()):
+    """
+    an async api that check authentication of user 
+    and response an access token for 15 minutes
+
+    """
+
+    user = login(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+        )
+    access_token = create_access_token(
+        data={"sub": user['username']}
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
