@@ -89,3 +89,15 @@ async def api_key(form_data: OAuth2PasswordRequestForm = Depends()):
         data={"sub": user['username']}
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/api/auth/me")
+async def current_users():
+
+    """
+    an async api for show all user's information in the database
+
+    """
+
+    users = [User(**user) for user in db.users.find()]
+    return {'users': users}
