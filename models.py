@@ -1,19 +1,27 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import BaseModel,Field
 from pymongo import MongoClient
 from bson import ObjectId
 
 
-client = MongoClient()
+
+
+uri = 'mongodb://127.0.0.1:27017'
+client = AsyncIOMotorClient(uri)
 db = client['my_task_db']
+
+
+# client = MongoClient()
+# db = client['my_task_db']
 
 
 class User(BaseModel):
     _id : ObjectId
     username : str
     password : str
-    national_code:str
+    national_code:str=Field(title='National code',min_length=10,max_length=10,)
 
     class Config:
         schema_extra = {
@@ -23,6 +31,7 @@ class User(BaseModel):
                 "national_code":"123456789",
             }
         }
+
 
 class Token(BaseModel):
     access_token:str
