@@ -1,3 +1,5 @@
+import re
+
 from starlette import status
 from starlette.responses import Response
 from passlib.context import CryptContext
@@ -35,12 +37,14 @@ def check_national_code(national_code):
     if user:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {'error': 'user with this national code has exists!'}
-    if len(national_code) < 10:
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return {'error': 'length of national code must be 10 char'}
-    if not national_code.isdigit():
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return {'error': 'national code must be digits!'}
+
+    if not re.search(r'^\d{10}$', national_code):
+        return {'error':'national code is not valid!'}
+    check = int(input[9])
+    s = sum([int(input[x]) * (10 - x) for x in range(9)]) % 11
+    if not (s < 2 and check == s) or (s >= 2 and check + s == 11):
+        return {'error':'national code is not valid!'}
+
 
 
 def verify_password(plain_password, hashed_password):
